@@ -43,15 +43,15 @@ export const Footer = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4" />
-                <span>+91 9876543210</span>
+                <span>+919628516557</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>help@groc.com</span>
+                <span>rockamitsahu19@gmail.com</span>
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
-                <span>Delhi, India</span>
+                <span>Kanpur, India</span>
               </li>
             </ul>
           </div>
