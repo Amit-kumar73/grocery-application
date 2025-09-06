@@ -27,7 +27,7 @@ export const Header = ({ cartCount }: HeaderProps) => {
               <Menu className="h-5 w-5" />
             </Button>
             <div className="text-2xl font-bold text-primary">
-              blinkit
+              Groc
             </div>
           </div>
 

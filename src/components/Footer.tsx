@@ -9,7 +9,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold text-primary">blinkit</div>
+            <div className="text-2xl font-bold text-primary">Groc</div>
             <p className="text-sm text-muted-foreground">
               Get fresh groceries & essentials delivered to your doorstep in minutes.
             </p>
@@ -47,7 +47,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
-                <span>help@blinkit.com</span>
+                <span>help@groc.com</span>
               </li>
               <li className="flex items-center space-x-2">
                 <MapPin className="h-4 w-4" />
@@ -77,7 +77,7 @@ export const Footer = () => {
 
         <div className="border-t mt-8 pt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            © 2024 Blinkit. All rights reserved. Built with ❤️ for fast delivery.
+            © 2024 Groc. All rights reserved. Built with ❤️ for fast delivery.
           </p>
         </div>
       </div>
