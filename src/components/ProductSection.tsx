@@ -3,12 +3,22 @@ import { ProductCard } from './ProductCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+// Import product images
+import amulTaazaMilk from '@/assets/products/amul-taaza-milk.jpg';
+import motherDairyMilk from '@/assets/products/mother-dairy-milk.jpg';
+import amulGoldMilk from '@/assets/products/amul-gold-milk.jpg';
+import nestleAPlusMilk from '@/assets/products/nestle-a-plus-milk.jpg';
+import amulPaneer from '@/assets/products/amul-paneer.jpg';
+import britanniaCheese from '@/assets/products/britannia-cheese.jpg';
+import amulButter from '@/assets/products/amul-butter.jpg';
+import nestleMilkPowder from '@/assets/products/nestle-milk-powder.jpg';
+
 // Mock product data
 const milkProducts = [
   {
     id: 1,
     name: 'Amul Taaza Toned Milk',
-    image: 'https://images.unsplash.com/photo-1550583724-b2692b85169f?w=300&h=300&fit=crop',
+    image: amulTaazaMilk,
     price: 27,
     originalPrice: 30,
     unit: '500 ml',
@@ -19,7 +29,7 @@ const milkProducts = [
   {
     id: 2,
     name: 'Mother Dairy Full Cream Milk',
-    image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop',
+    image: motherDairyMilk,
     price: 32,
     unit: '500 ml',
     inStock: true,
@@ -28,7 +38,7 @@ const milkProducts = [
   {
     id: 3,
     name: 'Amul Gold Full Cream Milk',
-    image: 'https://images.unsplash.com/photo-1600717421821-bd55dc43f8b5?w=300&h=300&fit=crop',
+    image: amulGoldMilk,
     price: 35,
     originalPrice: 38,
     unit: '500 ml',
@@ -39,7 +49,7 @@ const milkProducts = [
   {
     id: 4,
     name: 'Nestle A+ Toned Milk',
-    image: 'https://images.unsplash.com/photo-1585515656663-fae33794aa5a?w=300&h=300&fit=crop',
+    image: nestleAPlusMilk,
     price: 28,
     unit: '500 ml',
     inStock: true,
@@ -48,7 +58,7 @@ const milkProducts = [
   {
     id: 5,
     name: 'Amul Fresh Paneer',
-    image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=300&h=300&fit=crop',
+    image: amulPaneer,
     price: 85,
     originalPrice: 90,
     unit: '200 g',
@@ -59,7 +69,7 @@ const milkProducts = [
   {
     id: 6,
     name: 'Britannia Cheese Cubes',
-    image: 'https://images.unsplash.com/photo-1552767059-ce182ead6c1b?w=300&h=300&fit=crop',
+    image: britanniaCheese,
     price: 120,
     unit: '200 g',
     inStock: true,
@@ -68,7 +78,7 @@ const milkProducts = [
   {
     id: 7,
     name: 'Amul Butter',
-    image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&h=300&fit=crop',
+    image: amulButter,
     price: 52,
     originalPrice: 55,
     unit: '100 g',
@@ -79,7 +89,7 @@ const milkProducts = [
   {
     id: 8,
     name: 'Nestle Everyday Milk Powder',
-    image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop',
+    image: nestleMilkPowder,
     price: 185,
     unit: '400 g',
     inStock: false,
