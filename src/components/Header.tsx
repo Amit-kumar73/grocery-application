@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Search, ShoppingCart, MapPin, User, Menu } from 'lucide-react';
+import { Search, ShoppingCart, MapPin, User, Menu, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   cartCount: number;
@@ -11,6 +14,16 @@ interface HeaderProps {
 export const Header = ({ cartCount }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location, setLocation] = useState('Select Location');
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleAuthAction = () => {
+    if (user) {
+      signOut();
+    } else {
+      navigate('/auth');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -65,15 +78,43 @@ export const Header = ({ cartCount }: HeaderProps) => {
               <Search className="h-5 w-5" />
             </Button>
 
-            {/* Login */}
-            <Button
-              variant="ghost" 
-              size="sm"
-              className="flex items-center space-x-2"
-            >
-              <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Login</span>
-            </Button>
+            {/* User Authentication */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost" 
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem className="font-medium">
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost" 
+                size="sm"
+                className="flex items-center space-x-2"
+                onClick={handleAuthAction}
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline">Login</span>
+              </Button>
+            )}
 
             {/* Cart */}
             <Button
