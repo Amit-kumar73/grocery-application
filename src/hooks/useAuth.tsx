@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -9,14 +8,14 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
-  verifyOTP: (email: string, token: string, type: 'signup' | 'recovery') => Promise<{ error: any }>;
+  verifyOtp: (phone: string, token: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,24 +49,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName
-        }
-      }
+          full_name: fullName,
+        },
+      },
     });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign up failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Check your email",
-        description: "We've sent you a verification link to complete your registration.",
-      });
-    }
-
     return { error };
   };
 
@@ -76,82 +61,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign in failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in.",
-      });
-    }
-
     return { error };
   };
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Sign out failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-    }
+    return { error };
   };
 
   const resetPassword = async (email: string) => {
-    const redirectUrl = `${window.location.origin}/auth?mode=reset`;
+    const redirectUrl = `${window.location.origin}/auth/reset-password`;
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
     });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Reset failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Check your email",
-        description: "We've sent you a password reset link.",
-      });
-    }
-
     return { error };
   };
 
-  const verifyOTP = async (email: string, token: string, type: 'signup' | 'recovery') => {
+  const verifyOtp = async (phone: string, token: string) => {
     const { error } = await supabase.auth.verifyOtp({
-      email,
+      phone,
       token,
-      type,
+      type: 'sms',
     });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Verification failed",
-        description: error.message,
-      });
-    } else {
-      toast({
-        title: "Verification successful",
-        description: "Your email has been verified.",
-      });
-    }
-
     return { error };
   };
 
@@ -163,16 +95,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signIn,
     signOut,
     resetPassword,
-    verifyOTP,
+    verifyOtp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
+};
