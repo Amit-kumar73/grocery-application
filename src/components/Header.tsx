@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Search, ShoppingCart, MapPin, User, Menu, LogOut } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { LocationSelector } from '@/components/LocationSelector';
 
 interface HeaderProps {
   cartCount: number;
@@ -46,13 +47,10 @@ export const Header = ({ cartCount }: HeaderProps) => {
 
           {/* Location Selector - Hidden on mobile */}
           <div className="hidden md:flex items-center space-x-2 min-w-0">
-            <Button
-              variant="outline"
-              className="flex items-center space-x-2 max-w-[200px] truncate"
-            >
-              <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-              <span className="truncate text-sm">{location}</span>
-            </Button>
+            <LocationSelector 
+              value={location} 
+              onLocationChange={setLocation} 
+            />
           </div>
 
           {/* Search Bar - Hidden on mobile */}
@@ -137,13 +135,12 @@ export const Header = ({ cartCount }: HeaderProps) => {
           <div className="md:hidden border-t bg-background/95 backdrop-blur">
             <div className="px-4 py-4 space-y-4">
               {/* Mobile Location */}
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-start space-x-2"
-              >
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="text-sm">{location}</span>
-              </Button>
+              <div className="w-full">
+                <LocationSelector 
+                  value={location} 
+                  onLocationChange={setLocation} 
+                />
+              </div>
               
               {/* Mobile Search */}
               <div className="relative">

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Home } from 'lucide-react';
 
 type AuthMode = 'login' | 'register' | 'forgot-password' | 'otp-verification';
 
@@ -417,6 +417,17 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Back to Home Button */}
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/')}
+            className="flex items-center space-x-2 text-muted-foreground hover:text-foreground"
+          >
+            <Home className="h-4 w-4" />
+            <span>Back to Home</span>
+          </Button>
+        </div>
         <Tabs value={mode} onValueChange={(value) => setMode(value as AuthMode)} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="login">Sign In</TabsTrigger>
