@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
 import { CategoryGrid } from '@/components/CategoryGrid';
-import { ProductSection } from '@/components/ProductSection';
+import { EnhancedProductSection } from '@/components/EnhancedProductSection';
 import { Footer } from '@/components/Footer';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const [cartItems, setCartItems] = useState<{ [key: number]: number }>({});
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
   const { toast } = useToast();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -72,6 +73,7 @@ const Index = () => {
   };
 
   const handleCategorySelect = (categoryId: number) => {
+    setSelectedCategoryId(categoryId);
     toast({
       title: "Category selected",
       description: "Showing products from selected category",
@@ -83,12 +85,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header cartCount={totalCartItems} />
+      <Header cartCount={totalCartItems} cartItems={cartItems} onUpdateCart={handleAddToCart} />
       
       <main>
         <HeroSection />
         <CategoryGrid onCategorySelect={handleCategorySelect} />
-        <ProductSection onAddToCart={handleAddToCart} cartItems={cartItems} />
+        <EnhancedProductSection 
+          onAddToCart={handleAddToCart} 
+          cartItems={cartItems} 
+          selectedCategoryId={selectedCategoryId}
+        />
       </main>
       
       <Footer />

@@ -1,18 +1,20 @@
 import { useState } from 'react';
-import { Search, ShoppingCart, User, Menu, LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { LocationSelector } from './LocationSelector';
+import { CartSidebar } from './CartSidebar';
 import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { User, LogOut, Search, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { LocationSelector } from '@/components/LocationSelector';
+import { Input } from '@/components/ui/input';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 
 interface HeaderProps {
   cartCount: number;
+  cartItems?: { [key: number]: number };
+  onUpdateCart?: (productId: number, quantity: number) => void;
 }
 
-export const Header = ({ cartCount }: HeaderProps) => {
+export const Header = ({ cartCount, cartItems = {}, onUpdateCart = () => {} }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location, setLocation] = useState('Select Location');
   const { user, signOut } = useAuth();
@@ -114,19 +116,11 @@ export const Header = ({ cartCount }: HeaderProps) => {
               </Button>
             )}
 
-            {/* Cart */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative"
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-primary hover:bg-primary">
-                  {cartCount}
-                </Badge>
-              )}
-            </Button>
+            <CartSidebar 
+              cartItems={cartItems}
+              onUpdateCart={onUpdateCart}
+              cartCount={cartCount}
+            />
           </div>
         </div>
 

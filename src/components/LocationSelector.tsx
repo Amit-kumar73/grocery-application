@@ -93,6 +93,7 @@ export const LocationSelector = ({ value, onLocationChange }: LocationSelectorPr
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
 
   const handleDistrictChange = (district: string) => {
     setSelectedDistrict(district);
@@ -111,6 +112,65 @@ export const LocationSelector = ({ value, onLocationChange }: LocationSelectorPr
     }
   };
 
+  const handleCurrentLocation = () => {
+    setIsLocating(true);
+    
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by this browser.');
+      setIsLocating(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          
+          // Use a reverse geocoding service (using a free service)
+          const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            const city = data.city || data.locality || 'Unknown City';
+            const district = data.principalSubdivision || 'Unknown District';
+            
+            // Check if the detected location is in UP
+            const upDistricts = Object.keys(upLocations);
+            const matchedDistrict = upDistricts.find(d => 
+              d.toLowerCase().includes(district.toLowerCase()) || 
+              district.toLowerCase().includes(d.toLowerCase())
+            );
+            
+            if (matchedDistrict) {
+              const location = `${city}, ${matchedDistrict}`;
+              onLocationChange(location);
+              setIsOpen(false);
+            } else {
+              alert('Current location detected outside Uttar Pradesh. Please select manually.');
+            }
+          } else {
+            alert('Could not detect location. Please select manually.');
+          }
+        } catch (error) {
+          alert('Error detecting location. Please select manually.');
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        alert('Error accessing location. Please select manually.');
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 600000
+      }
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -127,6 +187,29 @@ export const LocationSelector = ({ value, onLocationChange }: LocationSelectorPr
           <DialogTitle>Select Your Location</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          <div className="flex justify-center mb-4">
+            <Button
+              variant="outline"
+              onClick={handleCurrentLocation}
+              disabled={isLocating}
+              className="flex items-center space-x-2"
+            >
+              <MapPin className="h-4 w-4" />
+              <span>{isLocating ? 'Detecting...' : 'Use Current Location'}</span>
+            </Button>
+          </div>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or select manually
+              </span>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label>District</Label>
             <Select value={selectedDistrict} onValueChange={handleDistrictChange}>
