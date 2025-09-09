@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { HeroSection } from '@/components/HeroSection';
+import { PromoBanner } from '@/components/PromoBanner';
 import { CategoryGrid } from '@/components/CategoryGrid';
 import { EnhancedProductSection } from '@/components/EnhancedProductSection';
 import { Footer } from '@/components/Footer';
@@ -89,6 +90,7 @@ const Index = () => {
       
       <main>
         <HeroSection />
+        <PromoBanner />
         <CategoryGrid onCategorySelect={handleCategorySelect} />
         <EnhancedProductSection 
           onAddToCart={handleAddToCart} 
