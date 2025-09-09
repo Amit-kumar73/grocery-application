@@ -5,17 +5,16 @@ import { PromoBanner } from '@/components/PromoBanner';
 import { CategoryGrid } from '@/components/CategoryGrid';
 import { EnhancedProductSection } from '@/components/EnhancedProductSection';
 import { Footer } from '@/components/Footer';
+import { AuthSidebar } from '@/components/AuthSidebar';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const [cartItems, setCartItems] = useState<{ [key: number]: number }>({});
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [showAuthSidebar, setShowAuthSidebar] = useState(false);
   const { toast } = useToast();
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -28,27 +27,18 @@ const Index = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header cartCount={0} />
-        <main className="container mx-auto px-4 py-16 text-center">
-          <div className="max-w-md mx-auto space-y-6">
-            <h1 className="text-3xl font-bold text-foreground">Welcome to Groc</h1>
-            <p className="text-muted-foreground">
-              Please sign in to access your grocery shopping experience
-            </p>
-            <Button onClick={() => navigate('/auth')} size="lg">
-              Sign In to Continue
-            </Button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
   const handleAddToCart = (productId: number, quantity: number) => {
+    // If user is not logged in, show auth sidebar
+    if (!user) {
+      setShowAuthSidebar(true);
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to add items to your cart",
+        duration: 3000,
+      });
+      return;
+    }
+
     setCartItems(prev => {
       const currentQuantity = prev[productId] || 0;
       const newQuantity = Math.max(0, currentQuantity + quantity);
@@ -86,7 +76,12 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header cartCount={totalCartItems} cartItems={cartItems} onUpdateCart={handleAddToCart} />
+      <Header 
+        cartCount={totalCartItems} 
+        cartItems={cartItems} 
+        onUpdateCart={handleAddToCart}
+        onAuthClick={() => setShowAuthSidebar(true)}
+      />
       
       <main>
         <HeroSection />
@@ -100,6 +95,11 @@ const Index = () => {
       </main>
       
       <Footer />
+      
+      <AuthSidebar 
+        isOpen={showAuthSidebar} 
+        onClose={() => setShowAuthSidebar(false)} 
+      />
     </div>
   );
 };

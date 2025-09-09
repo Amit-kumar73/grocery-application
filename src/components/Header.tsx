@@ -12,9 +12,10 @@ interface HeaderProps {
   cartCount: number;
   cartItems?: { [key: number]: number };
   onUpdateCart?: (productId: number, quantity: number) => void;
+  onAuthClick?: () => void;
 }
 
-export const Header = ({ cartCount, cartItems = {}, onUpdateCart = () => {} }: HeaderProps) => {
+export const Header = ({ cartCount, cartItems = {}, onUpdateCart = () => {}, onAuthClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [location, setLocation] = useState('Select Location');
   const { user, signOut } = useAuth();
@@ -24,7 +25,11 @@ export const Header = ({ cartCount, cartItems = {}, onUpdateCart = () => {} }: H
     if (user) {
       signOut();
     } else {
-      navigate('/auth');
+      if (onAuthClick) {
+        onAuthClick();
+      } else {
+        navigate('/auth');
+      }
     }
   };
 
