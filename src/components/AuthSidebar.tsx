@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { X, User, Phone, ArrowLeft } from 'lucide-react';
+import { X, User, Phone, ArrowLeft, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,11 +14,13 @@ interface AuthSidebarProps {
 }
 
 export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [step, setStep] = useState<'method' | 'phone' | 'email' | 'otp'>('method');
+  const [authMethod, setAuthMethod] = useState<'phone' | 'email'>('phone');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signInWithPhone, verifyOtp } = useAuth();
+  const { signInWithPhone, signInWithEmail, verifyOtp, verifyEmailOtp } = useAuth();
   const { toast } = useToast();
 
   if (!isOpen) return null;
@@ -28,27 +30,44 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
     setIsLoading(true);
 
     try {
-      // Format phone number to include country code if not present
-      let formattedPhone = phoneNumber.trim();
-      if (formattedPhone.startsWith('0')) {
-        formattedPhone = '+91' + formattedPhone.substring(1);
-      } else if (!formattedPhone.startsWith('+')) {
-        formattedPhone = '+91' + formattedPhone;
-      }
+      if (authMethod === 'phone') {
+        // Format phone number to include country code if not present
+        let formattedPhone = phoneNumber.trim();
+        if (formattedPhone.startsWith('0')) {
+          formattedPhone = '+91' + formattedPhone.substring(1);
+        } else if (!formattedPhone.startsWith('+')) {
+          formattedPhone = '+91' + formattedPhone;
+        }
 
-      const { error } = await signInWithPhone(formattedPhone);
-      if (error) {
-        toast({
-          title: "Failed to send OTP",
-          description: error.message,
-          variant: "destructive",
-        });
+        const { error } = await signInWithPhone(formattedPhone);
+        if (error) {
+          toast({
+            title: "Failed to send OTP",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          setStep('otp');
+          toast({
+            title: "OTP Sent!",
+            description: "Please check your phone for the verification code.",
+          });
+        }
       } else {
-        setStep('otp');
-        toast({
-          title: "OTP Sent!",
-          description: "Please check your phone for the verification code.",
-        });
+        const { error } = await signInWithEmail(email);
+        if (error) {
+          toast({
+            title: "Failed to send OTP",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          setStep('otp');
+          toast({
+            title: "OTP Sent!",
+            description: "Please check your email for the verification code.",
+          });
+        }
       }
     } catch (error) {
       toast({
@@ -75,30 +94,45 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
     setIsLoading(true);
 
     try {
-      let formattedPhone = phoneNumber.trim();
-      if (formattedPhone.startsWith('0')) {
-        formattedPhone = '+91' + formattedPhone.substring(1);
-      } else if (!formattedPhone.startsWith('+')) {
-        formattedPhone = '+91' + formattedPhone;
-      }
+      if (authMethod === 'phone') {
+        let formattedPhone = phoneNumber.trim();
+        if (formattedPhone.startsWith('0')) {
+          formattedPhone = '+91' + formattedPhone.substring(1);
+        } else if (!formattedPhone.startsWith('+')) {
+          formattedPhone = '+91' + formattedPhone;
+        }
 
-      const { error } = await verifyOtp(formattedPhone, otp);
-      if (error) {
-        toast({
-          title: "Invalid OTP",
-          description: error.message,
-          variant: "destructive",
-        });
+        const { error } = await verifyOtp(formattedPhone, otp);
+        if (error) {
+          toast({
+            title: "Invalid OTP",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Welcome!",
+            description: "You have been signed in successfully.",
+          });
+          onClose();
+          resetForm();
+        }
       } else {
-        toast({
-          title: "Welcome!",
-          description: "You have been signed in successfully.",
-        });
-        onClose();
-        // Reset form
-        setStep('phone');
-        setPhoneNumber('');
-        setOtp('');
+        const { error } = await verifyEmailOtp(email, otp);
+        if (error) {
+          toast({
+            title: "Invalid OTP",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Welcome!",
+            description: "You have been signed in successfully.",
+          });
+          onClose();
+          resetForm();
+        }
       }
     } catch (error) {
       toast({
@@ -111,9 +145,25 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
     }
   };
 
-  const handleBack = () => {
-    setStep('phone');
+  const resetForm = () => {
+    setStep('method');
+    setPhoneNumber('');
+    setEmail('');
     setOtp('');
+  };
+
+  const handleBack = () => {
+    if (step === 'otp') {
+      setStep(authMethod);
+      setOtp('');
+    } else if (step === 'phone' || step === 'email') {
+      setStep('method');
+    }
+  };
+
+  const handleMethodSelect = (method: 'phone' | 'email') => {
+    setAuthMethod(method);
+    setStep(method);
   };
 
   return (
@@ -123,13 +173,18 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                {step === 'otp' && (
+                {(step === 'otp' || step === 'phone' || step === 'email') && (
                   <Button variant="ghost" size="sm" onClick={handleBack} className="mr-2">
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
                 )}
-                <Phone className="h-5 w-5 text-primary" />
-                {step === 'phone' ? 'Sign In with Phone' : 'Verify OTP'}
+                {step === 'method' && <User className="h-5 w-5 text-primary" />}
+                {(step === 'phone' || (step === 'otp' && authMethod === 'phone')) && <Phone className="h-5 w-5 text-primary" />}
+                {(step === 'email' || (step === 'otp' && authMethod === 'email')) && <Mail className="h-5 w-5 text-primary" />}
+                {step === 'method' && 'Choose Sign In Method'}
+                {step === 'phone' && 'Sign In with Phone'}
+                {step === 'email' && 'Sign In with Email'}
+                {step === 'otp' && 'Verify OTP'}
               </CardTitle>
               <Button variant="ghost" size="sm" onClick={onClose}>
                 <X className="h-4 w-4" />
@@ -141,14 +196,42 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-foreground">Welcome to Groc</h2>
               <p className="text-muted-foreground">
-                {step === 'phone' 
-                  ? 'Enter your phone number to get started' 
-                  : 'Enter the 6-digit code sent to your phone'
-                }
+                {step === 'method' && 'Choose how you\'d like to sign in'}
+                {step === 'phone' && 'Enter your phone number to get started'}
+                {step === 'email' && 'Enter your email address to get started'}
+                {step === 'otp' && `Enter the 6-digit code sent to your ${authMethod === 'phone' ? 'phone' : 'email'}`}
               </p>
             </div>
 
-            {step === 'phone' ? (
+            {step === 'method' && (
+              <div className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full h-14 justify-start gap-4"
+                  onClick={() => handleMethodSelect('phone')}
+                >
+                  <Phone className="h-5 w-5 text-primary" />
+                  <div className="text-left">
+                    <div className="font-medium">Continue with Phone</div>
+                    <div className="text-sm text-muted-foreground">Get OTP via SMS</div>
+                  </div>
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full h-14 justify-start gap-4"
+                  onClick={() => handleMethodSelect('email')}
+                >
+                  <Mail className="h-5 w-5 text-primary" />
+                  <div className="text-left">
+                    <div className="font-medium">Continue with Email</div>
+                    <div className="text-sm text-muted-foreground">Get OTP via Email</div>
+                  </div>
+                </Button>
+              </div>
+            )}
+
+            {step === 'phone' && (
               <form onSubmit={handleSendOtp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="flex items-center gap-2">
@@ -183,7 +266,46 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
                   )}
                 </Button>
               </form>
-            ) : (
+            )}
+
+            {step === 'email' && (
+              <form onSubmit={handleSendOtp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    We'll send you a verification code via email
+                  </p>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Sending OTP...
+                    </div>
+                  ) : (
+                    'Send OTP'
+                  )}
+                </Button>
+              </form>
+            )}
+
+            {step === 'otp' && (
               <form onSubmit={handleVerifyOtp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="otp">Verification Code</Label>
@@ -204,7 +326,7 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
                     </InputOTP>
                   </div>
                   <p className="text-xs text-muted-foreground text-center">
-                    Code sent to {phoneNumber}
+                    Code sent to {authMethod === 'phone' ? phoneNumber : email}
                   </p>
                 </div>
 
@@ -229,7 +351,7 @@ export const AuthSidebar = ({ isOpen, onClose }: AuthSidebarProps) => {
                     onClick={handleBack}
                     className="text-muted-foreground text-sm"
                   >
-                    Use different number
+                    Use different {authMethod === 'phone' ? 'number' : 'email'}
                   </Button>
                 </div>
               </form>

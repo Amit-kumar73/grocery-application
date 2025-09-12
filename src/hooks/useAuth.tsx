@@ -9,9 +9,11 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithPhone: (phone: string) => Promise<{ error: any }>;
+  signInWithEmail: (email: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   verifyOtp: (phone: string, token: string) => Promise<{ error: any }>;
+  verifyEmailOtp: (email: string, token: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -95,6 +97,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error };
   };
 
+  const signInWithEmail = async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+    });
+    return { error };
+  };
+
+  const verifyEmailOtp = async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    });
+    return { error };
+  };
+
   const value = {
     user,
     session,
@@ -102,9 +120,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signIn,
     signInWithPhone,
+    signInWithEmail,
     signOut,
     resetPassword,
     verifyOtp,
+    verifyEmailOtp,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
